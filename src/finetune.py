@@ -8,8 +8,8 @@ from tensorflow.data import Iterator
 
 # TASK
 SOFTMAX, FINETUNING = 'softmax', 'finetuning'
-TASK = [SOFTMAX, FINETUNING][1]
-SHOTS = [1,5,20,50][3]
+TASK = [SOFTMAX, FINETUNING][0]
+SHOTS = [1,5,20,50][1]
 
 # Path to the textfiles for the trainings and validation set
 train_file = '../data/caltech_train_%dimages.txt' % SHOTS
@@ -17,7 +17,7 @@ val_file = '../data/caltech_test.txt'
 
 # Learning params
 learning_rate = None
-num_epochs = 10
+num_epochs = 20
 batch_size = 100
 
 # Network params
@@ -98,7 +98,7 @@ with tf.name_scope("train"):
     # and the variable.
     a = tf.gradients(loss, var_list)
     gradients = zip(a, var_list)
-
+    
     # Task 2: Create optimizer and apply gradient descent to the trainable variables
     # Task 2: Search for usage of tf.train.GradientDescentOptimizer() and apply_gradients()
     # Task 3: An easy way to solve the different learning rate method is to design two optimizers and two train_ops
@@ -110,10 +110,10 @@ with tf.name_scope("train"):
         train_op = optimizer.apply_gradients(gradients)
     elif TASK == FINETUNING:
         optimizer1 = tf.train.GradientDescentOptimizer(learning_rate[0])
-        train_op1 = optimizer1.apply_gradients(gradients[:1])
+        train_op1 = optimizer1.apply_gradients(gradients[:2])
         optimizer2 = tf.train.GradientDescentOptimizer(learning_rate[1])
-        train_op2 = optimizer2.apply_gradients(gradients[1:])
-        train_op = tf.group()
+        train_op2 = optimizer2.apply_gradients(gradients[2:])
+        train_op = tf.group([train_op1, train_op2])
     else:
         raise Error("TASK not specified!")
         
